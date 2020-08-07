@@ -1,0 +1,155 @@
+---
+title: 'Part One: A simulation exercise'
+author: "Samir N. Hag Ibrahim"
+date: "7/12/2020"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# PART ONE: SIMULATION EXERCISE
+## General Overview
+Investigate the exponential distribution in R and compare it with the Central Limit Theorem. The exponential distribution can be simulated in R with rexp(n, lambda) where lambda is the rate parameter. The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda. Set lambda = 0.2 for all of the simulations. You will investigate the distribution of averages of 40 exponentials. Note that you will need to do a thousand simulations.
+
+
+## Instructions and Requirements
+Illustrate via simulation and associated explanatory text the properties of the distribution of the mean of 40 exponentials.
+
+illustrate the followings:
+1. Show the *sample mean* and compare it to the *theoretical mean* of the distribution.
+2. Show how *variable the sample* is and compare it to the *theoretical variance* of the distribution.
+3. Show that the *distribution* is approximately *normal*.
+
+## 1. Show the sample mean and compare it to the theoretical mean of the distribution.
+
+```{r include=FALSE}
+library(ggplot2)
+```
+
+Set the variables as defined
+```{r}
+lambda <- 0.2
+n <- 40
+nosim <- 1000
+set.seed(1234)
+simData <- matrix(rexp(n*nosim, rate = lambda), nosim)
+```
+
+Now, calculate the Mean of the simulated data *(for code see appendix)*
+```{r echo=FALSE}
+simMeans <- apply(simData, 1, mean) # calculate the sample rows means
+sampleMean <- mean(simMeans)# calculating the overall sample Mean
+theorMean <- 1/lambda # theoretical Mean
+```
+
+```{r }
+sampleMean # sample mean
+theorMean # theoritical mean
+```
+
+the sample means' distribution was found to be centered at `r sampleMean`, where the theoretical mean is `r theorMean` also see the plot below, indicating that both the sample mean and the theoretical mean are almost identical.*(for plot code see appendix)*
+
+```{r echo=FALSE}
+hist(simMeans, breaks = 40, main = "Sample Means Distributions", xlab= "Means", ylab = "Means Frequencies", col = "lightblue")
+abline(v = theorMean, lty = 1, lwd = 3, col = "red")
+abline(v = sampleMean, lty= 2, lwd = 3, col = "black")
+legend("topright", legend = c( "Theoretical Mean", "Sample Mean"),lty = c(1,2) , lwd = 2, col = c("red", "black"))
+
+```
+
+## 2. Show how variable the sample is and compare it to the theoretical variance of the distribution.
+in this part, the sample variance will be compared with the theoretical variance reported.
+
+first, calculating the sample variance of the means and the theoretical variance *(for code see appendix)*
+```{r echo=FALSE}
+sampleVar <- var(simMeans)
+theorVar <- (1/(lambda)^2/n)
+```
+
+```{r }
+sampleVar
+theorVar
+```
+
+Accordingly, the sample variance of the means was found to be `r sampleVar`, where the theoretical variance was found to be `r theorVar` which are "almost identical".
+
+
+## 3. Show that the distribution is approximately normal.
+
+First lets calculate the sd form both sample means and the theorical means *(for code see appendix)*:
+
+```{r echo=FALSE}
+sampleSD <- sd(simMeans)
+theorSD <- 1/(lambda*sqrt(n))
+```
+
+```{r}
+sampleSD
+theorSD
+```
+
+we observe that that both SD are close. to get more insight, the below is the distribution plot *(for code see appendix)*.
+
+```{r echo=FALSE}
+data <- data.frame(simMeans)
+m <- ggplot(data, aes(x=simMeans))+ 
+        geom_histogram(aes(y = ..density..), colour = "blue", fill = "lightblue")+
+        labs(title = "Distribution of Means", x = "Means", y = "Densities")+
+        stat_function(fun = dnorm, args = list(mean = theorMean, sd = theorSD), color = "red", size = 1)+
+        stat_function(fun = dnorm, args = list(mean = sampleMean, sd = sampleSD), color = "black", size = 1)+
+        theme_classic()
+m
+```
+
+from the graph above we notice that the sample means are normaly distributed.
+
+\newpage
+
+#APPENDIX
+
+Codes used
+```{r eval=FALSE}
+simMeans <- apply(simData, 1, mean) # calculate the sample rows means
+sampleMean <- mean(simMeans)# calculating the overall sample Mean
+theorMean <- 1/lambda # theoretical Mean
+```
+
+
+```{r eval=FALSE}
+hist(simMeans, breaks = 40, main = "Sample Means Distributions", xlab= "Means", 
+     ylab = "Means Frequencies", col = "lightblue")
+abline(v = theorMean, lty = 1, lwd = 3, col = "red")
+abline(v = sampleMean, lty= 2, lwd = 3, col = "black")
+legend("topright", legend = c( "Theoretical Mean", "Sample Mean"),lty = c(1,2) , 
+       lwd = 2, col = c("red", "black"))
+
+```
+
+```{r eval=FALSE}
+sampleVar <- var(simMeans)
+theorVar <- (1/(lambda)^2/n)
+```
+
+```{r eval=FALSE}
+sampleSD <- sd(simMeans)
+theorSD <- 1/(lambda*sqrt(n))
+```
+
+```{r }
+data <- data.frame(simMeans)
+m <- ggplot(data, aes(x=simMeans))+ 
+        geom_histogram(aes(y = ..density..), colour = "blue", fill = "lightblue")+
+        labs(title = "Distribution of Means", x = "Means", y = "Densities")+
+        stat_function(fun = dnorm, args = list(mean = theorMean, sd = theorSD), 
+                      color = "red", size = 1)+
+        stat_function(fun = dnorm, args = list(mean = sampleMean, sd = sampleSD), 
+                      color = "black", size = 1)+
+        theme_classic()
+```
+
+#### DONE **********************
